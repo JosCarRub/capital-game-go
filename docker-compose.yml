@@ -19,6 +19,9 @@ services:
       MYSQL_DATABASE: capital_play
       MYSQL_USER: player
       MYSQL_PASSWORD: secret
+
+    stdin_open: true 
+    tty: true        # pseudo-termin
     ports:
       - "3308:3306"
     volumes:
