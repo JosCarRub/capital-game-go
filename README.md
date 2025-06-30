@@ -1,10 +1,23 @@
-# Capital Game GO
+# Capital Game GO 🌍
 
 <div align="center">
 
-🌍 **Interactive CLI Geography Game** 🎯
+🌍 **Interactive CLI Geography Game** 🌍
 
 *Guess the capitals • Save your scores • Challenge yourself*
+
+<div align="center">
+
+*Built using Go & Docker*
+
+<a href="https://go.dev/">
+<img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+</a>
+<a href="https://www.docker.com/">
+<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
+</a>
+
+</div>
 
 ---
 
@@ -80,6 +93,6 @@ docker volume rm capital-game-go_db_data
 
 <div align="center">
 
-*Built with ❤️ using Go & Docker*
+*Built using Go & Docker*
 
 </div>
