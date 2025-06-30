@@ -96,6 +96,9 @@ docker volume rm capital-game-go_db_data
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg" alt="Go" width="55" height="55"/>
   &nbsp;&nbsp;&nbsp;&nbsp;
 
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" alt="Docker" width="55" height="55"/>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+
 </p>
 
 </div>
