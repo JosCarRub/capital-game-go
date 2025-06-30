@@ -1,0 +1,28 @@
+services:
+  app:
+    build: .
+    container_name: capital_game_app
+    depends_on:
+      - db
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_USER=player
+      - MYSQL_PASSWORD=secret
+      - MYSQL_DATABASE=capital_play
+
+  db:
+    image: mysql:8.0
+    container_name: capital_game_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_secret
+      MYSQL_DATABASE: capital_play
+      MYSQL_USER: player
+      MYSQL_PASSWORD: secret
+    ports:
+      - "3308:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
