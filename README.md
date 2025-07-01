@@ -10,12 +10,11 @@
 
 *Built using Go & Docker*
 
-<a href="https://go.dev/">
-<img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
-</a>
-<a href="https://www.docker.com/">
-<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
-</a>
+<p align="center">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=go,docker" />
+  </a>
+</p>
 
 </div>
 
@@ -24,7 +23,7 @@
 </div>
 
 
-### About The Project
+### 💡About The Project
 
 **Capital Play GO** is an interactive command-line interface (CLI) game developed in Go. The main goal is to guess the capitals of countries from around the world. At the end of each round, players can save their scores to a local leaderboard, adding a competitive and replayable element to the game.
 
@@ -34,7 +33,7 @@ The application is fully containerized using Docker and orchestrated with Docker
 
 ---
 
-### Future Work
+### ✨Future Work
 
 This Beta version serves as a solid foundation. Future development will focus on:
 
@@ -46,7 +45,7 @@ This Beta version serves as a solid foundation. Future development will focus on
 
 ---
 
-### Getting Started
+### 📖Getting Started
 
 Follow these instructions to get a local copy up and running.
 
