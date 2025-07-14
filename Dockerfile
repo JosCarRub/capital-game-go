@@ -16,5 +16,3 @@ FROM alpine:latest
 COPY --from=builder /capital-game /capital-game
 
 COPY ./data/countries.json /data/countries.json
-
-CMD ["/capital-game"]
