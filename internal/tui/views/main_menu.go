@@ -1,18 +1,11 @@
 package views
 
 import (
+	"capital-game-go/internal/tui/components"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 )
-
-const titleArt = `
- ██████╗ █████╗ ██████╗ ██╗████████╗ █████╗ ██╗     ███████╗███████╗
-██╔════╝██╔══██╗██╔══██╗██║╚══██╔══╝██╔══██╗██║     ██╔════╝██╔════╝
-██║     ███████║██████╔╝██║   ██║   ███████║██║     █████╗  ███████╗
-██║     ██╔══██║██╔═══╝ ██║   ██║   ██╔══██║██║     ██╔══╝  ╚════██║
-╚██████╗██║  ██║██║     ██║   ██║   ██║  ██║███████╗███████╗███████║
- ╚═════╝╚═╝  ╚═╝╚═╝     ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝
-`
 
 type MainMenuModel struct {
 	cursor  int
@@ -61,7 +54,7 @@ func (m MainMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m MainMenuModel) View() string {
-	s := titleArt + "\n\n"
+	s := components.View() + "\n\n"
 
 	for i, choice := range m.choices {
 		cursor := "  "
@@ -71,6 +64,6 @@ func (m MainMenuModel) View() string {
 		s += cursor + choice + "\n"
 	}
 
-	s += "\nUn juego de JosCarRub ⭐\n"
+	s += "\n⭐ Un juego de JosCarRub ⭐\n"
 	return s
 }

@@ -2,6 +2,7 @@ package views
 
 import (
 	"capital-game-go/internal/game"
+	"capital-game-go/internal/tui/components"
 	"fmt"
 	"strings"
 
@@ -21,6 +22,7 @@ type GameViewModel struct {
 	textInput       textinput.Model
 	isGameOver      bool
 	RoundSize       int
+	progressBar     components.Model
 }
 
 func NewGameView(countries []game.Country) GameViewModel {
@@ -39,6 +41,7 @@ func NewGameView(countries []game.Country) GameViewModel {
 		textInput:       ti,
 		isGameOver:      false,
 		RoundSize:       session.RoundSize,
+		progressBar:     components.NewProgressBar(20),
 	}
 }
 
@@ -104,19 +107,14 @@ func (m GameViewModel) View() string {
 	missesText := fmt.Sprintf("Fallos: %d ❌", m.gameSession.Misses)
 
 	progress := float64(m.gameSession.Hits+m.gameSession.Misses) / float64(m.gameSession.RoundSize)
-
-	if progress > 1.0 {
-		progress = 1.0
-	}
-	progressWidth := 20
-	filledWidth := int(progress * float64(progressWidth))
-	progressText := fmt.Sprintf("[%s%s]", strings.Repeat("█", filledWidth), strings.Repeat("─", progressWidth-filledWidth))
+	m.progressBar.SetProgress(progress)
 
 	statusBar := lipgloss.JoinHorizontal(lipgloss.Top,
 		lipgloss.NewStyle().Width(20).Render(hitsText),
-		lipgloss.NewStyle().Width(25).Align(lipgloss.Center).Render("Progreso "+progressText),
+		lipgloss.NewStyle().Width(25).Align(lipgloss.Center).Render("Progreso "+m.progressBar.View()),
 		lipgloss.NewStyle().Width(20).Align(lipgloss.Right).Render(missesText),
 	)
+
 	b.WriteString(statusBar)
 
 	return b.String()
