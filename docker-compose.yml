@@ -17,18 +17,19 @@ services:
     container_name: capital_game_db
     restart: always
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "player", "-psecret"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
     environment:
       MYSQL_ROOT_PASSWORD: root_secret
       MYSQL_DATABASE: capital_play
       MYSQL_USER: player
       MYSQL_PASSWORD: secret
-
+    
     stdin_open: true 
-    tty: true        # pseudo-termin
+    tty: true
     ports:
       - "3308:3306"
     volumes:
