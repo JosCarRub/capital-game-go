@@ -2,14 +2,24 @@ package views
 
 import (
 	"capital-game-go/internal/tui/components"
+	"capital-game-go/internal/tui/style"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type MainMenuModel struct {
 	cursor  int
 	choices []string
+	width   int
+	height  int
+}
+
+func (m *MainMenuModel) SetSize(width, height int) {
+	m.width = width
+	m.height = height
 }
 
 func NewMainMenu() MainMenuModel {
@@ -54,16 +64,27 @@ func (m MainMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m MainMenuModel) View() string {
-	s := components.View() + "\n\n"
+	var b strings.Builder
+
+	b.WriteString(components.View())
+	b.WriteString("\n\n")
 
 	for i, choice := range m.choices {
 		cursor := "  "
+		style := lipgloss.NewStyle()
 		if m.cursor == i {
 			cursor = "▶ "
+			style = style.Foreground(lipgloss.Color("#00AEEF")).Bold(true)
 		}
-		s += cursor + choice + "\n"
+		b.WriteString(style.Render(cursor + choice))
+		b.WriteString("\n")
 	}
 
-	s += "\n⭐ Un juego de JosCarRub ⭐\n"
-	return s
+	b.WriteString("\n⭐ Un juego de JosCarRub ⭐\n")
+
+	helpView := style.HelpStyle.Render("↑/↓: Moverse  •  Enter: Seleccionar  •  Ctrl+C: Salir")
+
+	mainContent := lipgloss.JoinVertical(lipgloss.Center, b.String(), helpView)
+
+	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, mainContent)
 }

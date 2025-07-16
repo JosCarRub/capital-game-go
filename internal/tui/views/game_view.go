@@ -3,6 +3,7 @@ package views
 import (
 	"capital-game-go/internal/game"
 	"capital-game-go/internal/tui/components"
+	"capital-game-go/internal/tui/style"
 	"fmt"
 	"strings"
 
@@ -23,6 +24,13 @@ type GameViewModel struct {
 	isGameOver      bool
 	RoundSize       int
 	progressBar     components.Model
+	width           int
+	height          int
+}
+
+func (m *GameViewModel) SetSize(width, height int) {
+	m.width = width
+	m.height = height
 }
 
 func NewGameView(countries []game.Country) GameViewModel {
@@ -41,7 +49,7 @@ func NewGameView(countries []game.Country) GameViewModel {
 		textInput:       ti,
 		isGameOver:      false,
 		RoundSize:       session.RoundSize,
-		progressBar:     components.NewProgressBar(20),
+		progressBar:     components.NewProgressBar(30),
 	}
 }
 
@@ -71,7 +79,6 @@ func (m GameViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if !hasNext || m.gameSession.Hits+m.gameSession.Misses >= m.gameSession.RoundSize {
 				m.isGameOver = true
 				return m, func() tea.Msg {
-
 					return GameOverMsg{Hits: m.gameSession.Hits, Misses: m.gameSession.Misses}
 				}
 			}
@@ -94,7 +101,8 @@ func (m GameViewModel) View() string {
 	var b strings.Builder
 
 	header := fmt.Sprintf("Pregunta %d/%d", m.gameSession.Hits+m.gameSession.Misses+1, m.gameSession.RoundSize)
-	b.WriteString(header + "\n\n")
+	b.WriteString(lipgloss.NewStyle().Bold(true).Render(header))
+	b.WriteString("\n\n")
 
 	b.WriteString("¿Cuál es la capital de...\n")
 	b.WriteString(lipgloss.NewStyle().Foreground(lipgloss.Color("#00AEEF")).Bold(true).Render(m.currentQuestion.Name))
@@ -111,11 +119,14 @@ func (m GameViewModel) View() string {
 
 	statusBar := lipgloss.JoinHorizontal(lipgloss.Top,
 		lipgloss.NewStyle().Width(20).Render(hitsText),
-		lipgloss.NewStyle().Width(25).Align(lipgloss.Center).Render("Progreso "+m.progressBar.View()),
+		lipgloss.NewStyle().Width(40).Align(lipgloss.Center).Render("Progreso "+m.progressBar.View()),
 		lipgloss.NewStyle().Width(20).Align(lipgloss.Right).Render(missesText),
 	)
-
 	b.WriteString(statusBar)
 
-	return b.String()
+	helpView := style.HelpStyle.Render("Enter: Enviar respuesta  •  Esc: Volver al menú")
+
+	mainContent := lipgloss.JoinVertical(lipgloss.Center, b.String(), "\n", helpView)
+
+	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, mainContent)
 }

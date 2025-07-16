@@ -1,6 +1,4 @@
-#!/bin/bash
 
-# Colores
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
@@ -9,7 +7,6 @@ CYAN='\033[0;36m'
 PURPLE='\033[0;35m'
 NC='\033[0m'
 
-# Función para mostrar barra de progreso (solo con herramientas estándar)
 show_progress() {
     local steps=$1
     local message=$2
@@ -18,23 +15,19 @@ show_progress() {
     echo -ne "${CYAN}${message}${NC} ["
     
     for ((i=0; i<=steps; i++)); do
-        # Calculamos el progreso sin bc
         local filled=$((i * width / steps))
         local empty=$((width - filled))
         
         printf "\r${CYAN}${message}${NC} ["
         
-        # Barra llena
         for ((j=0; j<filled; j++)); do
             printf "█"
         done
         
-        # Barra vacía
         for ((j=0; j<empty; j++)); do
             printf "░"
         done
         
-        # Porcentaje calculado sin bc
         local percentage=$((i * 100 / steps))
         printf "] ${YELLOW}%d%%${NC}" $percentage
         
@@ -43,7 +36,6 @@ show_progress() {
     echo
 }
 
-# Función para mostrar spinner usando solo caracteres ASCII estándar
 show_spinner() {
     local message=$1
     local duration=${2:-3}
@@ -52,7 +44,6 @@ show_spinner() {
     
     echo -ne "${CYAN}${message}${NC} "
     
-    # Convertir duración a iteraciones (aproximadamente)
     local iterations=$((duration * 10))
     
     for ((i=0; i<iterations; i++)); do
@@ -65,7 +56,6 @@ show_spinner() {
     echo -e "\b${GREEN}✓${NC}"
 }
 
-# Función para mostrar puntos animados
 show_dots() {
     local message=$1
     local max_dots=${2:-3}
@@ -80,12 +70,10 @@ show_dots() {
     echo -e " ${GREEN}✓${NC}"
 }
 
-# Función para verificar si el comando existe
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Función para limpiar la línea actual
 clear_line() {
     echo -ne "\r\033[K"
 }
@@ -106,18 +94,17 @@ cleanup() {
 
 trap cleanup EXIT
 
-# Verificar dependencias básicas
 if ! command_exists docker-compose; then
     echo -e "${RED}❌ Error: docker-compose no está instalado${NC}"
     exit 1
 fi
 
-# Limpiar pantalla si es posible
+
 if command_exists clear; then
     clear
 fi
 
-# Banner principal
+
 echo -e "${PURPLE}╔══════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${PURPLE}║                                                              ║${NC}"
 echo -e "${PURPLE}║  ${CYAN}🚀 LANZADOR DE CAPITAL GAME GO 🚀${PURPLE}                      ║${NC}"
@@ -128,28 +115,24 @@ echo -e "${PURPLE}╚═══════════════════�
 
 echo -e "\n${YELLOW}⚡ Iniciando secuencia de arranque...${NC}\n"
 
-# Paso 1: Levantar la base de datos
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${YELLOW}📋 PASO 1/3: Iniciando base de datos${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
 show_progress 30 "🐳 Levantando contenedor de base de datos"
 
-# Ejecutar docker-compose
 docker-compose up -d db > /dev/null 2>&1
 
 show_spinner "Configurando servicios" 2
 
 echo -e "${GREEN}✅ Base de datos iniciada correctamente${NC}\n"
 
-# Paso 2: Esperar a que la base de datos esté lista
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${YELLOW}📋 PASO 2/3: Verificando estado de la base de datos${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
 echo -e "${CYAN}🔍 Verificando health check de la base de datos...${NC}"
 
-# Spinner personalizado para la espera usando solo caracteres ASCII
 spinner_chars='-\|/'
 counter=0
 
@@ -163,7 +146,6 @@ done
 clear_line
 echo -e "${GREEN}✅ ¡Base de datos lista y funcionando!${NC}\n"
 
-# Paso 3: Ejecutar la aplicación
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${YELLOW}📋 PASO 3/3: Iniciando Capital Game${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"

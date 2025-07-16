@@ -1,6 +1,7 @@
 package views
 
 import (
+	"capital-game-go/internal/tui/style"
 	"fmt"
 	"strings"
 
@@ -21,6 +22,13 @@ type GameOverModel struct {
 	totalQuestions int
 	textInput      textinput.Model
 	isSubmitting   bool
+	width          int
+	height         int
+}
+
+func (m *GameOverModel) SetSize(width, height int) {
+	m.width = width
+	m.height = height
 }
 
 func NewGameOverView(hits, misses, total int) GameOverModel {
@@ -67,27 +75,31 @@ func (m GameOverModel) View() string {
 	var b strings.Builder
 
 	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFDC00")).Render("¡Partida Finalizada!")
-	b.WriteString(lipgloss.PlaceHorizontal(50, lipgloss.Center, title))
+	b.WriteString(title)
 	b.WriteString("\n\n")
 
 	scoreText := fmt.Sprintf("Tu puntuación: %d / %d", m.hits, m.totalQuestions)
 	scoreStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#32CD32"))
-	b.WriteString(lipgloss.PlaceHorizontal(50, lipgloss.Center, scoreStyle.Render(scoreText)))
+	b.WriteString(scoreStyle.Render(scoreText))
 	b.WriteString("\n\n")
 
 	b.WriteString("Introduce tu nombre para guardar la puntuación:\n")
-	b.WriteString(lipgloss.PlaceHorizontal(50, lipgloss.Center, m.textInput.View()))
+	b.WriteString(m.textInput.View())
 	b.WriteString("\n\n")
 
 	promoBoxStyle := lipgloss.NewStyle().
 		Border(lipgloss.DoubleBorder(), true).
 		BorderForeground(lipgloss.Color("#555")).
-		Padding(1, 2).
-		Width(46)
+		Padding(1, 2)
 
 	promoText := "Si te ha gustado el juego, ¡apoya el proyecto!\n"
 	promoLink := lipgloss.NewStyle().Foreground(lipgloss.Color("#00AEEF")).Render("⭐ Dame una estrella en GitHub ⭐")
-	b.WriteString(lipgloss.PlaceHorizontal(50, lipgloss.Center, promoBoxStyle.Render(promoText+promoLink)))
+	b.WriteString(promoBoxStyle.Render(promoText + promoLink))
+	b.WriteString("\n\n")
 
-	return lipgloss.Place(50, 15, lipgloss.Center, lipgloss.Center, b.String())
+	helpView := style.HelpStyle.Render("Enter: Guardar y ver ranking  •  Esc: Volver al menú")
+	b.WriteString(helpView)
+
+	content := lipgloss.JoinVertical(lipgloss.Center, b.String())
+	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, content)
 }

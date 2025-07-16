@@ -39,6 +39,14 @@ func (m MainModel) Init() tea.Cmd {
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+		m.menu.SetSize(m.width, m.height)
+		m.game.SetSize(m.width, m.height)
+		m.gameOver.SetSize(m.width, m.height)
+		m.leaderboard.SetSize(m.width, m.height)
+
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
@@ -46,29 +54,32 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "esc":
 			if m.view != views.MainMenu {
 				m.game = views.NewGameView(m.countries)
+				m.game.SetSize(m.width, m.height)
 				m.view = views.MainMenu
 			}
 		}
 	case views.SwitchToViewMsg:
 		if msg.NewView == views.MainMenu {
 			m.game = views.NewGameView(m.countries)
+			m.game.SetSize(m.width, m.height)
 		}
 		m.view = msg.NewView
 		if m.view == views.LeaderboardView {
 			m.leaderboard = views.NewLeaderboardView(m.db)
+			m.leaderboard.SetSize(m.width, m.height)
 			return m, m.leaderboard.Init()
 		}
 		return m, nil
 	case views.GameOverMsg:
 		m.gameOver = views.NewGameOverView(msg.Hits, msg.Misses, m.game.RoundSize)
+		m.gameOver.SetSize(m.width, m.height)
 		m.view = views.GameOverView
 		return m, m.gameOver.Init()
 	case views.ScoreSubmittedMsg:
-
 		database.SaveScore(m.db, msg.PlayerName, msg.Hits)
-
 		m.view = views.LeaderboardView
 		m.leaderboard = views.NewLeaderboardView(m.db)
+		m.leaderboard.SetSize(m.width, m.height)
 		return m, m.leaderboard.Init()
 	}
 
@@ -96,6 +107,10 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m MainModel) View() string {
+	if m.width == 0 || m.height == 0 {
+		return "Inicializando..."
+	}
+
 	switch m.view {
 	case views.MainMenu:
 		return m.menu.View()

@@ -15,6 +15,6 @@ const titleArt = `
 
 func View() string {
 
-	titleStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#FFDC00")).Bold(true)
+	titleStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#44a6f3")).Bold(true)
 	return titleStyle.Render(titleArt)
 }

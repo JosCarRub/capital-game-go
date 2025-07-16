@@ -1,4 +1,4 @@
-package tui
+package style
 
 import "github.com/charmbracelet/lipgloss"
 
@@ -13,4 +13,7 @@ var (
 	NormalBorder    = lipgloss.NewStyle().Border(lipgloss.NormalBorder(), true).BorderForeground(lipgloss.Color("240"))
 	CorrectBorder   = lipgloss.NewStyle().Border(lipgloss.NormalBorder(), true).BorderForeground(CorrectStyle.GetForeground())
 	IncorrectBorder = lipgloss.NewStyle().Border(lipgloss.NormalBorder(), true).BorderForeground(IncorrectStyle.GetForeground())
+
+	// Estilo para el texto de ayuda en el pie de página
+	HelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
 )

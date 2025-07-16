@@ -3,6 +3,7 @@ package views
 import (
 	"capital-game-go/internal/database"
 	"capital-game-go/internal/game"
+	"capital-game-go/internal/tui/style"
 	"database/sql"
 	"fmt"
 	"strings"
@@ -21,6 +22,13 @@ type LeaderboardModel struct {
 	scores    []game.PlayerScore
 	isLoading bool
 	err       error
+	width     int
+	height    int
+}
+
+func (m *LeaderboardModel) SetSize(width, height int) {
+	m.width = width
+	m.height = height
 }
 
 func NewLeaderboardView(db *sql.DB) LeaderboardModel {
@@ -67,57 +75,59 @@ func (m LeaderboardModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m LeaderboardModel) View() string {
+	var content string
+
 	if m.isLoading {
-		return fmt.Sprintf("\n   %s Cargando ranking...\n\n", m.spinner.View())
-	}
+		content = fmt.Sprintf("\n   %s Cargando ranking...\n\n", m.spinner.View())
+	} else if m.err != nil {
+		content = fmt.Sprintf("\nError al cargar el ranking:\n%v\n\nPulsa 'Esc' para volver.", m.err)
+	} else {
+		var b strings.Builder
 
-	if m.err != nil {
-		return fmt.Sprintf("\nError al cargar el ranking:\n%v\n\nPulsa 'Esc' para volver.", m.err)
-	}
+		title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFDC00")).Render("🏆 RANKING DE JUGADORES 🏆")
+		b.WriteString(title)
+		b.WriteString("\n\n")
 
-	var b strings.Builder
-
-	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFDC00")).Render("🏆 RANKING DE JUGADORES 🏆")
-	b.WriteString(lipgloss.PlaceHorizontal(60, lipgloss.Center, title))
-	b.WriteString("\n\n")
-
-	headerStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#00AEEF"))
-	header := lipgloss.JoinHorizontal(lipgloss.Top,
-		headerStyle.Copy().Width(8).Render("#"),
-		headerStyle.Copy().Width(30).Render("Jugador"),
-		headerStyle.Copy().Width(15).Align(lipgloss.Right).Render("Puntos"),
-	)
-	b.WriteString(header)
-	b.WriteString("\n")
-	b.WriteString(strings.Repeat("─", 53))
-	b.WriteString("\n")
-
-	for i, score := range m.scores {
-		if i >= 10 {
-			break
-		}
-		rank := fmt.Sprintf("%d", i+1)
-		rankStyle := lipgloss.NewStyle().Width(8)
-		if i == 0 {
-			rank = "🥇"
-		} else if i == 1 {
-			rank = "🥈"
-		} else if i == 2 {
-			rank = "🥉"
-		}
-
-		row := lipgloss.JoinHorizontal(lipgloss.Top,
-			rankStyle.Render(rank),
-			lipgloss.NewStyle().Width(30).Render(score.Name),
-			lipgloss.NewStyle().Width(15).Align(lipgloss.Right).Render(fmt.Sprintf("%d", score.Points)),
+		headerStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#00AEEF"))
+		header := lipgloss.JoinHorizontal(lipgloss.Top,
+			headerStyle.Copy().Width(8).Render("#"),
+			headerStyle.Copy().Width(30).Render("Jugador"),
+			headerStyle.Copy().Width(15).Align(lipgloss.Right).Render("Puntos"),
 		)
-		b.WriteString(row)
+		b.WriteString(header)
 		b.WriteString("\n")
+		b.WriteString(strings.Repeat("─", 53))
+		b.WriteString("\n")
+
+		for i, score := range m.scores {
+			if i >= 10 {
+				break
+			}
+			rank := fmt.Sprintf("%d", i+1)
+			rankStyle := lipgloss.NewStyle().Width(8)
+			if i == 0 {
+				rank = "🥇"
+			} else if i == 1 {
+				rank = "🥈"
+			} else if i == 2 {
+				rank = "🥉"
+			}
+
+			row := lipgloss.JoinHorizontal(lipgloss.Top,
+				rankStyle.Render(rank),
+				lipgloss.NewStyle().Width(30).Render(score.Name),
+				lipgloss.NewStyle().Width(15).Align(lipgloss.Right).Render(fmt.Sprintf("%d", score.Points)),
+			)
+			b.WriteString(row)
+			b.WriteString("\n")
+		}
+
+		b.WriteString("\n\n")
+		instructions := style.HelpStyle.Render("Pulsa 'Esc' para volver al menú principal.")
+		b.WriteString(instructions)
+
+		content = b.String()
 	}
 
-	b.WriteString("\n\n")
-	instructions := lipgloss.NewStyle().Foreground(lipgloss.Color("#888")).Render("Pulsa 'Esc' para volver al menú principal.")
-	b.WriteString(lipgloss.PlaceHorizontal(60, lipgloss.Center, instructions))
-
-	return lipgloss.Place(60, 20, lipgloss.Center, lipgloss.Center, b.String())
+	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, content)
 }

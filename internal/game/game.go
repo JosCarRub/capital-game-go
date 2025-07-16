@@ -31,11 +31,11 @@ func LoadCountries(filepath string) ([]Country, error) {
 }
 
 type Game struct {
-	Countries        []Country // lista completa de todos los países posibles
-	RemainingIndices []int     // índices de los países que aún no se han preguntado
-	Hits             int       // contador aciertos
-	Misses           int       // contador fallos
-	RoundSize        int       // Número de preguntas
+	Countries        []Country
+	RemainingIndices []int
+	Hits             int
+	Misses           int
+	RoundSize        int
 }
 
 func NewGame(countries []Country) *Game {
@@ -84,11 +84,11 @@ func NormalizeString(s string) string {
 		log.Printf("Error al normalizar string: %v", err)
 		result = s
 	}
-	// conversor a minúsculas y limpiador de espacios de los lados
+
 	return strings.ToLower(strings.TrimSpace(result))
 }
 
-// compara la respuesta del usuario con la capital correcta
+// comparador
 func CheckAnswer(userInput string, correctCapital string) bool {
 	normalizedUserInput := NormalizeString(userInput)
 	normalizedCorrectCapital := NormalizeString(correctCapital)
@@ -96,12 +96,12 @@ func CheckAnswer(userInput string, correctCapital string) bool {
 	return normalizedUserInput == normalizedCorrectCapital
 }
 
-// incrementa contador de aciertos.
+// incrementa aciertos
 func (g *Game) RecordHit() {
 	g.Hits++
 }
 
-// incrementa contador de fallos.
+// incrementa fallos
 func (g *Game) RecordMiss() {
 	g.Misses++
 }
