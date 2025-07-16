@@ -5,9 +5,17 @@ import (
 	"capital-game-go/internal/game"
 	"capital-game-go/internal/tui/views"
 	"database/sql"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
+
+var fadeRamp = []string{"#FFFFFF", "#E0E0E0", "#C0C0C0", "#A0A0A0", "#808080", "#606060", "#404040", "#202020", "#000000"}
+
+const fadeDuration = 50 * time.Millisecond
+
+type fadeOutMsg struct{}
 
 type MainModel struct {
 	db          *sql.DB
@@ -20,6 +28,10 @@ type MainModel struct {
 	width       int
 	height      int
 	err         error
+
+	isFadingOut bool
+	fadeStep    int
+	nextView    views.CurrentView
 }
 
 func NewMainModel(db *sql.DB, countries []game.Country) MainModel {
@@ -37,7 +49,41 @@ func (m MainModel) Init() tea.Cmd {
 	return nil
 }
 
+func (m *MainModel) startFade(targetView views.CurrentView) (tea.Model, tea.Cmd) {
+	m.isFadingOut = true
+	m.fadeStep = 0
+	m.nextView = targetView
+	return m, func() tea.Msg {
+		time.Sleep(fadeDuration)
+		return fadeOutMsg{}
+	}
+}
+
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if m.isFadingOut {
+		switch msg.(type) {
+		case fadeOutMsg:
+			m.fadeStep++
+			if m.fadeStep >= len(fadeRamp) {
+				m.isFadingOut = false
+				m.view = m.nextView
+				if m.view == views.LeaderboardView {
+					m.leaderboard = views.NewLeaderboardView(m.db)
+					m.leaderboard.SetSize(m.width, m.height)
+					return m, m.leaderboard.Init()
+				}
+				return m, nil
+			}
+			return m, func() tea.Msg {
+				time.Sleep(fadeDuration)
+				return fadeOutMsg{}
+			}
+		case tea.KeyMsg:
+
+			return m, nil
+		}
+	}
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -55,7 +101,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.view != views.MainMenu {
 				m.game = views.NewGameView(m.countries)
 				m.game.SetSize(m.width, m.height)
-				m.view = views.MainMenu
+				return m.startFade(views.MainMenu)
 			}
 		}
 	case views.SwitchToViewMsg:
@@ -63,24 +109,16 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.game = views.NewGameView(m.countries)
 			m.game.SetSize(m.width, m.height)
 		}
-		m.view = msg.NewView
-		if m.view == views.LeaderboardView {
-			m.leaderboard = views.NewLeaderboardView(m.db)
-			m.leaderboard.SetSize(m.width, m.height)
-			return m, m.leaderboard.Init()
-		}
-		return m, nil
+		return m.startFade(msg.NewView)
+
 	case views.GameOverMsg:
 		m.gameOver = views.NewGameOverView(msg.Hits, msg.Misses, m.game.RoundSize)
 		m.gameOver.SetSize(m.width, m.height)
-		m.view = views.GameOverView
-		return m, m.gameOver.Init()
+		return m.startFade(views.GameOverView)
+
 	case views.ScoreSubmittedMsg:
 		database.SaveScore(m.db, msg.PlayerName, msg.Hits)
-		m.view = views.LeaderboardView
-		m.leaderboard = views.NewLeaderboardView(m.db)
-		m.leaderboard.SetSize(m.width, m.height)
-		return m, m.leaderboard.Init()
+		return m.startFade(views.LeaderboardView)
 	}
 
 	var cmd tea.Cmd
@@ -111,16 +149,25 @@ func (m MainModel) View() string {
 		return "Inicializando..."
 	}
 
+	var currentView string
 	switch m.view {
 	case views.MainMenu:
-		return m.menu.View()
+		currentView = m.menu.View()
 	case views.GameView:
-		return m.game.View()
+		currentView = m.game.View()
 	case views.GameOverView:
-		return m.gameOver.View()
+		currentView = m.gameOver.View()
 	case views.LeaderboardView:
-		return m.leaderboard.View()
+		currentView = m.leaderboard.View()
 	default:
-		return "Vista desconocida."
+		currentView = "Vista desconocida."
 	}
+
+	if m.isFadingOut {
+		return lipgloss.NewStyle().
+			Foreground(lipgloss.Color(fadeRamp[m.fadeStep])).
+			Render(currentView)
+	}
+
+	return currentView
 }
